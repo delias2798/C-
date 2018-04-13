@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/servidor.dir/main.cpp.o CMakeFiles/servidor.dir/client.cpp.o CMakeFiles/servidor.dir/Generador_Datos.cpp.o  -o servidor 
