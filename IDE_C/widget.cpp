@@ -1,29 +1,60 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include "widget.h"
+#include "ui_widget.h"
+#include "localserver.h"
+#include <QMessageBox>
+#include<QTcpSocket>
 #include <QFile>
-#include<QTextStream>
-#include<QMessageBox>
-#include<QStringList>
-#include<QCoreApplication>
 #include<QRegularExpression>
+#include<QJsonObject>
+#include<QJsonDocument>
+#include<QJsonArray>
 
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+Widget::Widget(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::Widget)
 {
     ui->setupUi(this);
+    mLocalServer = new LocalServer(this);
+    mSocket = new QTcpSocket(this);
 
+    connect(mSocket, &QTcpSocket::readyRead, [&](){
+        QTextStream T(mSocket);
+
+        ui->msj->setPlainText(T.readAll());
+    });
 }
 
-MainWindow::~MainWindow()
+Widget::~Widget()
 {
     delete ui;
 }
 
+void Widget::on_iniciar_clicked()
+{
+    if(!mLocalServer->listen(QHostAddress::Any,8080)){
+        QMessageBox::critical(this,"error",mLocalServer->errorString());
+    }else{
+        mSocket->connectToHost("192.168.0.14",8080);
+        QMessageBox::information(this,"Servidor","Iniciado");
+    }
 
+}
 
-void MainWindow::on_pushButton_clicked()
+void Widget::on_enviat_clicked()
+{
+    QString text  = ui->msj->toPlainText();
+    QByteArray b = text.toUtf8();
+    mLocalServer->envia(b);
+    mSocket->write(b);
+}
+
+void Widget::on_quitar_clicked()
+{
+    close();
+}
+
+void Widget::on_enviat_pressed()
 {
     QFile file("/home/david/IDE_C/file.txt");
     QFile code("/home/david/IDE_C/code.txt");
@@ -34,7 +65,7 @@ void MainWindow::on_pushButton_clicked()
     }
     QTextStream out(&file);
     QTextStream out2(&code);
-    QString text  = ui->plainTextEdit->toPlainText();
+    QString text  = ui->msj->toPlainText();
     out << text;
     out2 << text;
     file.flush();
@@ -42,13 +73,15 @@ void MainWindow::on_pushButton_clicked()
     code.flush();
     code.close();
 
+
+
+
+
+
 }
 
-void MainWindow::on_pushButton_2_clicked()
-
+void Widget::on_enviat_released()
 {
-
-
     QFile file("/home/david/IDE_C/file.txt");
     QFile code("/home/david/IDE_C/code.txt");
     if (!file.open(QFile::ReadOnly | QFile::Text) & !code.open(QFile::ReadOnly | QFile::Text)){
@@ -57,13 +90,15 @@ void MainWindow::on_pushButton_2_clicked()
     }else{
         QTextStream in(&file);
         QTextStream ni(&code);
+        QJsonObject recordObject;
+        QJsonArray final;
         while (!in.atEnd()){
             QString line = in.readLine();
             QRegularExpression Int("(\\bint\\b)");
             QRegularExpression Char("(\\bchar\\b)");
             QRegularExpression Long("(\\blong\\b)");
             QRegularExpression Double("(\\bdouble\\b)");
-            QRegularExpression variable("\\w+");
+            QRegularExpression variable(" \\w+");
             QRegularExpression equal("[=]");
             QRegularExpression start("[{]");
             QRegularExpression end("[}]");
@@ -84,7 +119,13 @@ void MainWindow::on_pushButton_2_clicked()
 
             if(Intmatch.hasMatch()){
                 if (variablematch.hasMatch() & equalmatch.hasMatch() &intvariablematch.hasMatch() &endlinematch.hasMatch()){
-                    QMessageBox::information(this,"title","ok");
+                    recordObject.insert("Tipo","int");
+                    recordObject.insert("nombre",QJsonValue::fromVariant(variablematch.captured()));
+                    recordObject.insert("dato",QJsonValue::fromVariant(intvariablematch.captured()));
+                    final.append(recordObject);
+                    QJsonDocument doc(recordObject);
+                    QString strJson(doc.toJson(QJsonDocument::Compact));
+                    QMessageBox::information(this,"title",strJson);
 
                 }else{
                     QMessageBox::warning(this,"Title","No match");
@@ -95,7 +136,12 @@ void MainWindow::on_pushButton_2_clicked()
             }
             if(Charmatch.hasMatch()){
                 if (variablematch.hasMatch() & equalmatch.hasMatch() &charvariablematch.hasMatch() &endlinematch.hasMatch()){
-                    QMessageBox::information(this,"title","ok");
+                    recordObject.insert("Tipo","char");
+                    recordObject.insert("nombre",QJsonValue::fromVariant(variablematch.captured()));
+                    recordObject.insert("dato",QJsonValue::fromVariant(charvariablematch.captured()));
+                    QJsonDocument doc(recordObject);
+                    QString strJson(doc.toJson(QJsonDocument::Compact));
+                    QMessageBox::information(this,"title",strJson);
 
                 }else{
                     QMessageBox::warning(this,"Title","No match");
@@ -126,19 +172,22 @@ void MainWindow::on_pushButton_2_clicked()
                 }
 
             }
+
+
         }
+        QJsonObject recobj;
+        QJsonDocument doc;
+        doc.setArray(final);
+        QString strJson(doc.toJson(QJsonDocument::Compact));
+        recobj.insert("Variable",strJson);
+        QJsonDocument doc2(recobj);
+        QString strJson2(doc2.toJson(QJsonDocument::Compact));
+        QMessageBox::information(this,"title",strJson2);
         QString text = ni.readAll();
-        ui->textBrowser->setPlainText(text);
+        ui->msj->setPlainText(text);
         file.close();
         code.close();
 
     }
 
-
-
-
-
 }
-
-
-

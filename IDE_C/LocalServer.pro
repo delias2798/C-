@@ -1,23 +1,22 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2018-04-03T15:02:37
+# Project created by QtCreator 2018-04-11T18:53:57
 #
 #-------------------------------------------------
 
 QT       += core gui network
 
-
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = IDE_C
+TARGET = LocalServer
 TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        widget.cpp \
+    localserver.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += widget.h \
+    localserver.h
 
-FORMS    += mainwindow.ui
-
-
+FORMS    += widget.ui

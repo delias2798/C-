@@ -1,2 +1,0 @@
-int lol = 5;
-char ds = d;
