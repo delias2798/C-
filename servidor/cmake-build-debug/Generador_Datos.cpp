@@ -7,6 +7,7 @@
 #include <vector>
 #include "Generador_Datos.h"
 #include <fstream>
+#include <jsoncpp/json/value.h>
 
 
 /*
@@ -70,6 +71,10 @@ void Generador_Datos::Obtener_datos(const char* direc) {
     char* data;
     char readData;
     bool flag = false;
+    Json::Value variables;
+
+    std::ifstream people_file("people.json", std::ifstream::binary);
+    people_file >> variables;
 
     std::ifstream is (direc);
     if (is) {

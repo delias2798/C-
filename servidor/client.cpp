@@ -101,6 +101,8 @@ int main(int argc, char* argv[])
 
         }while (*s != '*');
 
+        memset(&s[0], 0, sizeof(s));
+
         do{
             recv(listenFd, s, 1024, 0);
             if(*s == 'i'){

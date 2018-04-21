@@ -9,6 +9,10 @@
 #include <string.h>
 #include "client.h"
 #include "cmake-build-debug/Generador_Datos.h"
+#include <jsoncpp/json/json.h>
+#include <jsoncpp/json/value.h>
+#include <iostream>
+#include <fstream>
 
 
 using namespace std;
@@ -27,32 +31,17 @@ struct sockaddr_in serverAddress, clientAddress;
 
 int main() {
 
-//    Generador_Datos generador_datos;
-//    generador_datos.Obtener_datos("/home/elias/Escritorio/prueba.txt");
+    //Generador_Datos generador_datos;
+    //generador_datos.Obtener_datos("/home/elias/CLionProjects/servidor/output.txt");
 
-//    return 0;
+    //return 0;
 
-    cout << "Escriba el tipo de servidor" <<endl;
-    cout << "1 - Activo" <<endl;
-    cout << "2 - Pasivo" <<endl;
-    cin >> type;
+    //cout << "Escriba el tipo de servidor" <<endl;
+    cout << "Escriba el puerto para el servidor"<<endl;
+    portNo = 8080;
 
-    if (type == 1){
-        cout << "Escriba el puerto para el servidor"<<endl;
-        cin >>portNo;
-        cout << "Escriba el puerto para la comunicacion entre servidores" << endl;
-        cin >> portA;
-    }else if (type == 2){
-        cout << "Escriba el puerto para el servidor";
-        cin >>portNo;
-        cout << "Escriba la ip del servidor activo" << endl;
-        cin >> ip;
-        cout << "Escriba el puerto del servidor activo" << endl;
-        cin >> portP;
-    }else{
-        cout << "Tipo de servidor invalido" << endl;
-        return 0;
-    }
+
+
 
     inUse = false;
 
@@ -95,7 +84,6 @@ int main() {
     {
         socklen_t len = sizeof(clientAddress);
         //cout << "Listening" << endl;
-
         //this is where client connects. svr will hang in this mode until client conn
         connFd = accept(ClientSocket, (struct sockaddr*)&clientAddress, &len);
 
@@ -123,8 +111,15 @@ void *task (void *dummyPt)
 {
     std::cout << "Thread No: " << pthread_self() << std::endl;
     char test[1024];
-    int datos[1024];
     bzero(test, 1025);
+    std::string nombre;
+    std::string dato;
+    std::string bar;
+    int dato_int;
+    std::string tipo;
+    std::ofstream outfile;
+    Json::StyledStreamWriter writer;
+    Json::Value value_obj;
     /*char* buffer = new char[100];
     read(connFd, buffer, 100);
 
@@ -139,34 +134,82 @@ void *task (void *dummyPt)
     while(ClientSocket > 0)
     {
         //bzero(test, 301);
+        do{
     do{
-        //recv(connFd,test, 1024, 0);
-        recv(connFd,datos, 1024, 0);
-        std::cout << datos << std::endl;
-    }while (*datos != '*');
 
-        //read(connFd, test, 300);
+        recv(connFd,test, 1024, 0);
+        //recv(connFd,datos, 1024, 0);
 
-        //std::string tester (test);
-        //std::cout << tester << std::endl;
+
+        std::cout << test << std::endl;
+    }while (*test != '*');
+
+    //read(connFd, test, 300);
+    std::string tester (test);
+    std::cout << tester << '\n';
+
+
+
+    int o = 0;
+    do{
+        if (test[o] == 'V'){
+            std::cout << test[o + 8] << std::endl;
+        }
+        if(test[o] == 'T'){
+            for(int n = 9; test[o + n + 1] != '"'; n++) {
+                tipo += test[o + n];
+            }
+        }
+        if(test[o] == 'd'){
+            for(int n = 9; test[o + n + 1] != '"'; n++) {
+                dato += test[o + n];
+            }
+        }
+        if(test[o] == 'n' && test[o + 1] == 'o' && test[o + 2] == 'm'){
+            for(int n = 11; test[o + n + 1] != '"'; n++) {
+                nombre += test[o + n];
+            }
+        }
+        o++;
+    }while(test[o] != '*');
+
+    std::cout << nombre << '\n';
+    std::cout << tipo << '\n';
+    std::cout << dato << '\n';
+
+    value_obj["Variables"][nombre]["Tipo"] = tipo;
+    value_obj["Variables"][nombre]["Dato"] = dato;
+    std::cout << value_obj;
+    outfile.open("output.json");
+    writer.write(outfile, value_obj);
+    //{"Variable":"[{\"Tipo\":\"int\",\"dato\":\"5\",\"nombre\":\"juancito\"}]"}* *
+    //{"Variable":"[{\"Tipo\":\"int\",\"dato\":\"5\",\"nombre\":\"camilo\"}]"}* *
+
+
+            outfile.close();
 
     do {
         //if (*test == 'h') {
             std::cout << "Enter respond: ";
             //bzero(s, 301);
             //std::cin.getline(s, 300);
+        memset(&test[0], 0, sizeof(test));
+        int n = 0;
             std::cin >> test;
-            send(connFd, test, 1024, 0);
-            //write(listenFd, s, strlen(s));
-        //} else {
+        while(test[n] != NULL) {
+            n++;
+        }
+
+
+            send(connFd, test, n, 0);
             std::cout << test << std::endl;
-        //}
 
 
         if (*test == 'e')
             break;
     }while (*test != '#');
 
+    }while (*test != '-');
     }
     std::cout << "\nClosing thread and conn" << std::endl;
     close(connFd);

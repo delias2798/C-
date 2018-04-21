@@ -4,10 +4,10 @@
 CMakeFiles/servidor.dir/Generador_Datos.cpp.o
  /home/elias/CLionProjects/servidor/cmake-build-debug/Generador_Datos.cpp
  /home/elias/CLionProjects/servidor/cmake-build-debug/Generador_Datos.h
+CMakeFiles/servidor.dir/client.cpp.o
+ /home/elias/CLionProjects/servidor/client.cpp
+ /home/elias/CLionProjects/servidor/client.h
 CMakeFiles/servidor.dir/main.cpp.o
+ /home/elias/CLionProjects/servidor/client.h
  /home/elias/CLionProjects/servidor/cmake-build-debug/Generador_Datos.h
  /home/elias/CLionProjects/servidor/main.cpp
- /home/elias/CLionProjects/servidor/sdjn.h
-CMakeFiles/servidor.dir/sdjn.cpp.o
- /home/elias/CLionProjects/servidor/sdjn.cpp
- /home/elias/CLionProjects/servidor/sdjn.h

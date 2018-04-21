@@ -1,0 +1,10 @@
+{
+	"Variables" : 
+	{
+		"juancito" : 
+		{
+			"Dato" : "5",
+			"Tipo" : "int"
+		}
+	}
+}
