@@ -220,40 +220,6 @@ void Widget::on_enviat_released()
                     recordObject.insert("dato",QJsonValue::fromVariant(intvariablematch.captured()));
                     final.append(recordObject);
                 }if(SumaVarmatch.hasMatch() & !intvariablematch.hasMatch()){
-                    QString l = "& ";
-                    QByteArray s = l.toUtf8();
-                    QString SV1 = SumaV1match.captured();
-                    SV1.remove(QChar('+'));
-                    QJsonObject solicitud1;
-                    solicitud1.insert("int",SV1);
-                    QJsonDocument sol1(solicitud1);
-                    QString V1(sol1.toJson(QJsonDocument::Compact));
-                    QByteArray v1 = V1.toUtf8();
-                    mSocket->write(s+v1);
-                    if(mSocket->isReadable()){
-                        connect(mSocket, &QTcpSocket::readyRead,[&](){
-                                QTextStream T(mSocket);
-                                QString V1 = T.readAll();
-                                QMessageBox::information(this,"title",V1);
-
-
-                        });
-
-
-                    }
-
-                    QString SV2 = SumaV2match.captured();
-                    SV2.remove(QChar('+'));
-                    QJsonObject solicitud2;
-                    solicitud2.insert("int",SV2);
-                    QJsonDocument sol2(solicitud2);
-                    QString V2(sol2.toJson(QJsonDocument::Compact));
-                    QByteArray v2 = V2.toUtf8();
-
-
-
-
-
 
 
 
@@ -467,7 +433,7 @@ void Widget::on_enviat_released()
         QString strJson2(doc2.toJson(QJsonDocument::Compact));
         QMessageBox::information(this,"title",strJson2);
         QByteArray var = strJson2.toUtf8();
-
+        mSocket->write(var);
         QString text = ni.readAll();
         ui->msj->setPlainText(text);
         file.close();
@@ -477,15 +443,4 @@ void Widget::on_enviat_released()
 
 }
 
-void Widget::on_Ask_clicked()
-{
-    QJsonObject solicitud;
-    QString l = "* ";
-    QByteArray s = l.toUtf8();
-    solicitud.insert("int","f");
-    QJsonDocument sol(solicitud);
-    QString text(sol.toJson(QJsonDocument::Compact));
-    QByteArray b = text.toUtf8();
-    mSocket->write(s + b);
 
-}
