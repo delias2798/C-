@@ -29,6 +29,8 @@ private slots:
 
     void on_enviat_released();
 
+    void on_Ask_clicked();
+
 private:
     Ui::Widget *ui;
     LocalServer *mLocalServer;
